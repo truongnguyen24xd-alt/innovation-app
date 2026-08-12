@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="vi"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#ffffff"><meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="INNOVATION">
+<link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="innovation-apple-touch-icon.png">
+<title>INNOVATION</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#fff;font-family:Arial,sans-serif}
+#appFrame{position:fixed;inset:0;width:100%;height:100%;border:0;background:#fff}
+#boot{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#fff;z-index:20}
+#boot .box{text-align:center;color:#0b2f63;font-weight:700}#boot img{width:92px;height:92px;border-radius:22px}
+#qrOverlay{position:fixed;inset:0;display:none;background:#000;z-index:100;color:#fff}
+#qrVideo{width:100%;height:100%;object-fit:cover}
+#qrGuide{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(68vw,330px);height:min(68vw,330px);border:4px solid #fff;border-radius:22px;box-shadow:0 0 0 9999px rgba(0,0,0,.35)}
+#qrText{position:absolute;left:20px;right:20px;top:calc(env(safe-area-inset-top) + 18px);text-align:center;font-size:16px;font-weight:700;text-shadow:0 2px 6px #000}
+#qrClose{position:absolute;right:18px;top:calc(env(safe-area-inset-top) + 56px);border:0;border-radius:50%;width:46px;height:46px;font-size:25px;background:rgba(255,255,255,.9)}#qrCanvas{display:none}
+</style></head><body>
+<div id="boot"><div class="box"><img src="innovation-icon-192.png"><div style="margin-top:12px">Đang mở INNOVATION...</div></div></div>
+<iframe id="appFrame" src="https://script.google.com/macros/s/AKfycby8eJ1UMn5_MhNsGqa6vsUwk3OU_q7KPGScfN0r6hro7xW4E5Apngn8H-Up7rPmrhBDoA/exec" allow="camera; geolocation; clipboard-read; clipboard-write"></iframe>
+<div id="qrOverlay"><video id="qrVideo" autoplay playsinline muted></video><canvas id="qrCanvas"></canvas><div id="qrGuide"></div>
+<div id="qrText">Đưa mã QR vào giữa khung. Không cần chụp ảnh.</div><button id="qrClose">×</button></div>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+<script>
+(function(){
+var frame=document.getElementById('appFrame'),childSource=null,stream=null,scanTimer=null,activeRequest=false;
+var overlay=document.getElementById('qrOverlay'),video=document.getElementById('qrVideo'),canvas=document.getElementById('qrCanvas');
+function reply(msg){try{if(childSource)childSource.postMessage(msg,'*');}catch(e){}}
+function stopCamera(cancel){if(scanTimer){clearInterval(scanTimer);scanTimer=null;}if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}video.srcObject=null;overlay.style.display='none';if(cancel&&activeRequest)reply({type:'INNOVATION_QR_CANCEL'});activeRequest=false;}
+async function openCamera(){
+ activeRequest=true;overlay.style.display='block';
+ try{
+  stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}},audio:false});
+  video.srcObject=stream;await video.play();
+  scanTimer=setInterval(function(){
+   if(!video.videoWidth||!video.videoHeight)return;
+   var maxW=800,scale=Math.min(1,maxW/video.videoWidth);canvas.width=Math.max(1,Math.round(video.videoWidth*scale));canvas.height=Math.max(1,Math.round(video.videoHeight*scale));
+   var ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.drawImage(video,0,0,canvas.width,canvas.height);
+   try{var img=ctx.getImageData(0,0,canvas.width,canvas.height),qr=jsQR(img.data,img.width,img.height,{inversionAttempts:'attemptBoth'});
+   if(qr&&qr.data){var value=qr.data;stopCamera(false);reply({type:'INNOVATION_QR_RESULT',value:value});}}catch(e){}
+  },180);
+ }catch(err){stopCamera(false);alert('Không mở được camera. Hãy cấp quyền Camera cho INNOVATION.');reply({type:'INNOVATION_QR_CANCEL'});}
+}
+window.addEventListener('message',function(ev){
+ var m=ev.data||{};if(!m||typeof m!=='object'||String(m.type||'').indexOf('INNOVATION_')!==0)return;childSource=ev.source;
+ if(m.type==='INNOVATION_APP_READY'){document.getElementById('boot').style.display='none';reply({type:'INNOVATION_SHELL_HELLO'});}
+ else if(m.type==='INNOVATION_TOKEN_REQUEST')reply({type:'INNOVATION_TOKEN_RESPONSE',token:localStorage.getItem('innovation_persistent_token')||''});
+ else if(m.type==='INNOVATION_TOKEN_SAVE'){if(m.persistent===false)localStorage.removeItem('innovation_persistent_token');else localStorage.setItem('innovation_persistent_token',String(m.token||''));}
+ else if(m.type==='INNOVATION_TOKEN_CLEAR')localStorage.removeItem('innovation_persistent_token');
+ else if(m.type==='INNOVATION_QR_REQUEST')openCamera();
+});
+document.getElementById('qrClose').onclick=function(){stopCamera(true);};
+frame.onload=function(){setTimeout(()=>document.getElementById('boot').style.display='none',2500);};
+if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+})();
+</script></body></html>
