@@ -17,3 +17,4 @@ Cài GitHub Pages:
 6. iPhone: Safari > Chia sẻ > Thêm vào Màn hình chính.
 7. Xóa icon cũ cài từ script.google.com để tránh mở nhầm.
 8. Đăng nhập 1 lần. Những lần sau mở icon sẽ tự vào.
+GitHub Pages deployment refresh
