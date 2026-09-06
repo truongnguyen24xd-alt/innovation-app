@@ -1,20 +1,19 @@
-INNOVATION PWA SHELL V7.7.21
+INNOVATION PWA SHELL V9.3
 
-Đây là lớp cài đặt ổn định để xử lý dứt điểm:
-- duy trì đăng nhập;
-- mở từ icon không có thanh URL;
-- QR mở camera trực tiếp, không chụp ảnh.
+Ứng dụng cài đặt INNOVATION dành cho điện thoại và máy tính.
+- Mở từ biểu tượng INNOVATION, không hiện thanh địa chỉ.
+- Giữ bộ logo 192 px, 512 px và biểu tượng iPhone.
+- Hỗ trợ camera, quét QR và định vị.
+- Nguồn vận hành hiện tại: https://innovation-wsd-prod.web.app/
 
-Apps Script backend đã nhúng:
-https://script.google.com/macros/s/AKfycby8eJ1UMn5_MhNsGqa6vsUwk3OU_q7KPGScfN0r6hro7xW4E5Apngn8H-Up7rPmrhBDoA/exec
+Địa chỉ cài đặt:
+https://truongnguyen24xd-alt.github.io/innovation-app/
 
-Cài GitHub Pages:
-1. Tạo repo innovation-app.
-2. Upload toàn bộ file trong PWA_SHELL vào root repo.
-3. Settings > Pages > Deploy from a branch > main / root.
-4. Mở URL GitHub Pages được cấp.
-5. Android: Chrome > Cài ứng dụng.
-6. iPhone: Safari > Chia sẻ > Thêm vào Màn hình chính.
-7. Xóa icon cũ cài từ script.google.com để tránh mở nhầm.
-8. Đăng nhập 1 lần. Những lần sau mở icon sẽ tự vào.
-GitHub Pages deployment refresh
+Cập nhật từ V8:
+1. Người đã cài ứng dụng chỉ cần đóng hoàn toàn rồi mở lại.
+2. Nếu lần đầu vẫn còn V8, đóng và mở thêm một lần để service worker V9.3 tiếp quản.
+3. Không cần xóa biểu tượng cũ hoặc cài lại.
+
+Cài mới:
+- Android/máy tính: mở bằng Chrome hoặc Edge, chọn Cài đặt ứng dụng.
+- iPhone/iPad: mở bằng Safari, chọn Chia sẻ > Thêm vào Màn hình chính.
